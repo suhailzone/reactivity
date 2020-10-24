@@ -12,48 +12,87 @@ class ActivityStore {
 
   activityRegistry = new Map();
   initialLoading = false;
-  activities: IActivity[] = [];
-  selectedActivity: IActivity | undefined;
-  editMode = false;
+  activity: IActivity | null = null;
   submitting = false;
   target = "";
 
   @computed get activitiesByDate() {
-    return Array.from(this.activityRegistry.values()).sort(
-      (a, b) => Date.parse(a.date) - Date.parse(b.date)
+    return this.groupActivitiesByDate(
+      Array.from(this.activityRegistry.values())
     );
   }
 
-  loadActivity = async () => {
+  groupActivitiesByDate = (activities: IActivity[]) => {
+    const sortedActivities = activities.sort(
+      (a, b) => Date.parse(a.date) - Date.parse(b.date)
+    );
+    return sortedActivities;
+  };
+
+  loadActivities = async () => {
     this.initialLoading = true;
     try {
       const activities = await agent.Activities.list();
-      activities.forEach((activity) => {
-        activity.date = activity.date.split(".")[0];
-        this.activityRegistry.set(activity.id, activity);
+      runInAction(() => {
+        activities.forEach((activity) => {
+          activity.date = activity.date.split(".")[0];
+          this.activityRegistry.set(activity.id, activity);
+        });
+        this.initialLoading = false;
       });
-      this.initialLoading = false;
     } catch (err) {
       console.log(err);
-      this.initialLoading = false;
+      runInAction(() => {
+        this.initialLoading = false;
+      });
     }
   };
 
+  loadActivity = async (id: string) => {
+    let activity = this.getActivity(id);
+    if (activity) {
+      this.activity = activity;
+    } else {
+      this.initialLoading = true;
+      try {
+        activity = await agent.Activities.details(id);
+        runInAction(() => {
+          this.activity = activity;
+          this.initialLoading = false;
+        });
+      } catch (err) {
+        console.log(err);
+        runInAction(() => {
+          this.initialLoading = false;
+        });
+      }
+    }
+  };
+
+  clearActivty = () => {
+    this.activity = null;
+  };
+
+  getActivity = (id: string) => {
+    return this.activityRegistry.get(id);
+  };
+
   selectActivity = (id: string) => {
-    this.selectedActivity = this.activityRegistry.get(id);
-    this.editMode = false;
+    this.activity = this.activityRegistry.get(id);
   };
 
   createActivity = async (activity: IActivity) => {
     this.submitting = true;
     try {
       await agent.Activities.create(activity);
+      runInAction(() => {});
       this.activityRegistry.set(activity.id, activity);
-      this.editMode = false;
       this.submitting = false;
     } catch (err) {
       console.log(err);
-      this.submitting = false;
+      runInAction(() => {
+        this.submitting = false;
+      });
     }
   };
 
@@ -61,32 +100,30 @@ class ActivityStore {
     this.submitting = true;
     try {
       await agent.Activities.update(activity);
-      this.activityRegistry.set(activity.id, activity);
-      this.selectedActivity = activity;
-      this.editMode = false;
-      this.submitting = false;
+      runInAction(() => {
+        this.activityRegistry.set(activity.id, activity);
+        this.activity = activity;
+
+        this.submitting = false;
+      });
     } catch (err) {
       console.log(err);
-      this.submitting = false;
+      runInAction(() => {
+        this.submitting = false;
+      });
     }
   };
 
   openEditForm = (id: string) => {
     this.selectActivity = this.activityRegistry.get(id);
-    this.editMode = true;
   };
 
   openCreateForm = () => {
-    this.editMode = true;
-    this.selectedActivity = undefined;
+    this.activity = null;
   };
 
   cancelSeletedActivity = () => {
-    this.selectedActivity = undefined;
-  };
-
-  cancelFormOpen = () => {
-    this.editMode = false;
+    this.activity = null;
   };
 
   deleteActivity = async (
@@ -97,13 +134,17 @@ class ActivityStore {
     this.target = event.currentTarget.name;
     try {
       await agent.Activities.delete(id);
-      this.activityRegistry.delete(id);
-      this.submitting = false;
-      this.target = "";
+      runInAction(() => {
+        this.activityRegistry.delete(id);
+        this.submitting = false;
+        this.target = "";
+      });
     } catch (err) {
       console.log(err);
-      this.submitting = false;
-      this.target = "";
+      runInAction(() => {
+        this.submitting = false;
+        this.target = "";
+      });
     }
   };
 }
