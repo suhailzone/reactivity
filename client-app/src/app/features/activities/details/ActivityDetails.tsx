@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 import React, { useContext, useEffect } from "react";
 import { RouteComponentProps } from "react-router-dom";
 import { Grid } from "semantic-ui-react";
-import LoadingComponent from "../../../layout/LoadingComponent";
+import LoadingComponent from "../../../layouts/LoadingComponent";
 import ActivityStore from "../../../store/activityStore";
 import ActivityDetailedChat from "./ActivityDetailedChat";
 import ActivityDetailedSidebar from "./ActivityDetailedSidebar";
@@ -15,15 +15,17 @@ interface DetailParam {
 
 const ActivityDetails: React.FC<RouteComponentProps<DetailParam>> = ({
   match,
+  history,
 }) => {
   const { activity, loadActivity, initialLoading } = useContext(ActivityStore);
 
   useEffect(() => {
     loadActivity(match.params.id);
-  }, [loadActivity, match.params.id]);
+  }, [loadActivity, match.params.id, history]);
 
-  if (initialLoading || !activity)
-    return <LoadingComponent content="Loading Activity" />;
+  if (initialLoading) return <LoadingComponent content="Loading Activity" />;
+
+  if (!activity) return <div>Not Found</div>;
 
   return (
     <Grid>

@@ -61,10 +61,10 @@ class ActivityStore {
           this.initialLoading = false;
         });
       } catch (err) {
-        console.log(err);
         runInAction(() => {
           this.initialLoading = false;
         });
+        console.log(err);
       }
     }
   };

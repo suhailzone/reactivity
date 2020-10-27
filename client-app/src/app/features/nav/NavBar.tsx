@@ -2,7 +2,7 @@ import { observer } from "mobx-react-lite";
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { Button, Container, Menu } from "semantic-ui-react";
-import "../../layout/App.css";
+import "../../layouts/App.css";
 
 const NavBar = () => {
   return (

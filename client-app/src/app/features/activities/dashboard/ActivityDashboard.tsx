@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from "react";
 import { Grid } from "semantic-ui-react";
 import ActivityList from "./ActivityList";
 import { observer } from "mobx-react-lite";
-import LoadingComponent from "../../../layout/LoadingComponent";
+import LoadingComponent from "../../../layouts/LoadingComponent";
 import ActivityStore from "../../../store/activityStore";
 
 const ActivityDashboard: React.FC = () => {
