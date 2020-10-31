@@ -2,11 +2,13 @@ import { observer } from "mobx-react-lite";
 import React, { useContext } from "react";
 import { Item } from "semantic-ui-react";
 import { IActivity } from "../../../models/Activity";
-import ActivityStore from "../../../store/activityStore";
+import { RootStoreContext } from "../../../store/rootStore";
 import ActivityListItem from "./ActivityListItem";
 
 const ActivityList: React.FC = () => {
-  const { activitiesByDate } = useContext(ActivityStore);
+  const rootStore = useContext(RootStoreContext);
+
+  const { activitiesByDate } = rootStore.activityStore;
 
   return (
     <Item.Group divided>

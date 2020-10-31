@@ -1,12 +1,14 @@
-import { makeAutoObservable, computed, configure, runInAction } from "mobx";
-import { createContext, SyntheticEvent } from "react";
+import { makeAutoObservable, computed, runInAction } from "mobx";
+import { SyntheticEvent } from "react";
 import agent from "../api/agent";
 import { IActivity } from "../models/Activity";
+import { RootStore } from "./rootStore";
 
-configure({ enforceActions: "always" });
+export default class ActivityStore {
+  rootStore: RootStore;
 
-class ActivityStore {
-  constructor() {
+  constructor(rootStore: RootStore) {
+    this.rootStore = rootStore;
     makeAutoObservable(this);
   }
 
@@ -148,5 +150,3 @@ class ActivityStore {
     }
   };
 }
-
-export default createContext(new ActivityStore());
