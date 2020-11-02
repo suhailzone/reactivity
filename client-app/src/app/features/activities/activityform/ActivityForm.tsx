@@ -30,8 +30,11 @@ const ActivityForm: React.FC<RouteComponentProps<DetailParam>> = ({
     category: "",
     description: "",
     date: "",
+    isGoing: false,
+    isHost: false,
     city: "",
     venue: "",
+    attendees: [],
   });
 
   useEffect(() => {

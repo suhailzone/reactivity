@@ -6,4 +6,14 @@ export interface IActivity {
   date: string;
   city: string;
   venue: string;
+  isGoing: boolean;
+  isHost: boolean;
+  attendees: IAttendee[];
+}
+
+export interface IAttendee {
+  userName: string;
+  displayName: string;
+  image: string;
+  isHost: boolean;
 }
