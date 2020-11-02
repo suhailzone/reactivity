@@ -2,35 +2,43 @@ using System;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using Application.Activities;
 using Application.Errors;
+using AutoMapper;
 using Domain;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 using Persistence;
 
 namespace API.Controllers
 {
     public class Details
     {
-        public class Query : IRequest<Activity>
+        public class Query : IRequest<ActivityDTO>
         {
             public Guid Id { get; set; }
         }
 
-        public class Handler : IRequestHandler<Query, Activity>
+        public class Handler : IRequestHandler<Query, ActivityDTO>
         {
             private readonly DataContext _context;
-            public Handler(DataContext context)
+            private readonly IMapper _mapper;
+            public Handler(DataContext context, IMapper mapper)
             {
                 _context = context;
+                _mapper = mapper;
             }
-            public async Task<Activity> Handle(Query request, CancellationToken cancellationToken)
+            public async Task<ActivityDTO> Handle(Query request, CancellationToken cancellationToken)
             {
 
-                var activity = await _context.Activities.FindAsync(request.Id);
+                var activity = await _context.Activities
+                    .FindAsync(request.Id);
                 if (activity == null)
                     throw new RestException(HttpStatusCode.NotFound, new { activity = "Not found" });
 
-                return activity;
+                var activityToReturn = _mapper.Map<Activity, ActivityDTO>(activity);
+
+                return activityToReturn;
             }
         }
     }
