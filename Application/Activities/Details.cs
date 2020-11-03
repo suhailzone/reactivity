@@ -17,6 +17,7 @@ namespace API.Controllers
         public class Query : IRequest<ActivityDTO>
         {
             public Guid Id { get; set; }
+            public string Username { get; set; }
         }
 
         public class Handler : IRequestHandler<Query, ActivityDTO>
