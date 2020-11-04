@@ -2,6 +2,7 @@ import axios, { AxiosResponse } from "axios";
 import { toast } from "react-toastify";
 import { history } from "../..";
 import { IActivity } from "../models/Activity";
+import { IPhoto, IProfile } from "../models/profile";
 import { IUser, IUserFormValues } from "../models/User";
 
 axios.defaults.baseURL = "http://localhost:5000/api";
@@ -54,6 +55,19 @@ const requests = {
     axios.put(url, body).then(sleep(1000)).then(responseBody),
   delete: (url: string) =>
     axios.delete(url).then(sleep(1000)).then(responseBody),
+  postForm: (url: string, file: Blob) => {
+    let formData = new FormData();
+    formData.append("File", file);
+    console.log(formData);
+    return (
+      formData &&
+      axios
+        .post(url, formData, {
+          headers: { "Content-type": "multipart/form-data" },
+        })
+        .then(responseBody)
+    );
+  },
 };
 
 const Activities = {
@@ -75,7 +89,15 @@ const User = {
     requests.post(`/user/register`, user),
 };
 
+const Profile = {
+  get: (username: string): Promise<IProfile> =>
+    requests.get(`/profiles/${username}`),
+  uploadPhoto: (photo: Blob): Promise<IPhoto> =>
+    requests.postForm("/photos", photo),
+};
+
 export default {
   Activities,
   User,
+  Profile,
 };

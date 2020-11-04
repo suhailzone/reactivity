@@ -15,6 +15,7 @@ const ActivityListItem: React.FC<{ activity: IActivity }> = ({ activity }) => {
             <Item.Image
               size="tiny"
               circular
+              style={{ marginBottom: "3px" }}
               src={host.image || "assets/user.png"}
             />
             <Item.Content>
@@ -22,7 +23,10 @@ const ActivityListItem: React.FC<{ activity: IActivity }> = ({ activity }) => {
                 {activity.title}
               </Item.Header>
               <Item.Meta>{activity.date}</Item.Meta>
-              <Item.Description>Hosted by {host.displayName}</Item.Description>
+              <Item.Description>
+                Hosted by{" "}
+                <Link to={`/profile/${host.userName}`}>{host.displayName}</Link>
+              </Item.Description>
               {activity.isHost && (
                 <Item.Description>
                   <Label
