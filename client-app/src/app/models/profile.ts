@@ -11,3 +11,8 @@ export interface IPhoto {
   url: string;
   isMain: string;
 }
+
+export interface IDetails {
+  displayName: string;
+  bio: string;
+}

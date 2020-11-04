@@ -1,7 +1,7 @@
 import { computed, makeAutoObservable, runInAction } from "mobx";
 import { toast } from "react-toastify";
 import agent from "../api/agent";
-import { IProfile } from "../models/profile";
+import { IDetails, IProfile } from "../models/profile";
 import { RootStore } from "./rootStore";
 
 export default class ProfileStore {
@@ -13,6 +13,7 @@ export default class ProfileStore {
 
   profile: IProfile | null = null;
   loadingProfile = true;
+  updatingIndicator = false;
   uploadingPhoto = false;
 
   @computed get isCurrentUser() {
@@ -59,6 +60,23 @@ export default class ProfileStore {
       });
       toast.error("Problem uploading photo");
       console.log(err);
+    }
+  };
+  setDetails = async (details: IDetails) => {
+    this.updatingIndicator = true;
+    try {
+      await agent.Profile.setDetails(details);
+      runInAction(() => {
+        this.loadProfile(this.rootStore.userStore.user?.username!);
+        this.rootStore.userStore.getUser();
+        this.updatingIndicator = false;
+      });
+    } catch (err) {
+      console.log(err);
+      toast.error("Problem Updating");
+      runInAction(() => {
+        this.updatingIndicator = false;
+      });
     }
   };
 }
