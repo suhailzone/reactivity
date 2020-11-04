@@ -1,4 +1,5 @@
-﻿using Domain;
+﻿using Application.Comments;
+using Domain;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -18,5 +19,6 @@ namespace Application.Activities
 
         [JsonPropertyName("attendees")]
         public ICollection<AttendeeDTO> UserActivities { get; set; }
+        public ICollection<CommentsDTO> Comments { get; set; }
     }
 }

@@ -1,3 +1,8 @@
+import {
+  HubConnection,
+  HubConnectionBuilder,
+  LogLevel,
+} from "@microsoft/signalr";
 import { makeAutoObservable, computed, runInAction } from "mobx";
 import { SyntheticEvent } from "react";
 import { toast } from "react-toastify";
@@ -20,6 +25,58 @@ export default class ActivityStore {
   submitting = false;
   loading = false;
   target = "";
+  hubConnection: HubConnection | null = null;
+
+  createHubConnection = (activityId: string) => {
+    this.hubConnection = new HubConnectionBuilder()
+      .withUrl("http://localhost:5000/chat", {
+        accessTokenFactory: () => this.rootStore.commonStore.token!,
+      })
+      .configureLogging(LogLevel.Information)
+      .build();
+
+    this.hubConnection
+      .start()
+      .then(() => console.log(this.hubConnection?.state))
+      .then(() => {
+        this.hubConnection?.invoke("AddToGroup", activityId);
+      })
+      .catch((err) => console.log(err));
+
+    this.hubConnection.on("ReceiveComment", (comment) => {
+      runInAction(() => {
+        if (this.activity?.comments === null) {
+          let comm = [comment];
+          this.activity.comments = comm;
+        } else {
+          this.activity?.comments.push(comment);
+        }
+      });
+    });
+    this.hubConnection.on("Send", (message) => {
+      toast.info(message);
+    });
+  };
+
+  stopHubConnection = () => {
+    this.hubConnection
+      ?.invoke("RemoveFromGroup", this.activity?.id)
+      .then(() => {
+        this.hubConnection?.stop();
+      })
+      .then(() => console.log("connection stopped"))
+      .catch((err) => console.log(err));
+  };
+
+  addComment = async (values: any) => {
+    console.log(values);
+    values.activityId = this.activity?.id;
+    try {
+      await this.hubConnection?.invoke("SendComment", values);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   @computed get activitiesByDate() {
     return this.groupActivitiesByDate(
