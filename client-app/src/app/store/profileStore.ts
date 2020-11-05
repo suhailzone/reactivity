@@ -1,4 +1,4 @@
-import { computed, makeAutoObservable, runInAction } from "mobx";
+import { computed, makeAutoObservable, reaction, runInAction } from "mobx";
 import { toast } from "react-toastify";
 import agent from "../api/agent";
 import { IDetails, IProfile } from "../models/profile";
@@ -15,6 +15,7 @@ export default class ProfileStore {
   loadingProfile = true;
   updatingIndicator = false;
   uploadingPhoto = false;
+  followings: IProfile[] = [];
 
   @computed get isCurrentUser() {
     if (this.profile && this.rootStore.userStore.user) {
@@ -77,6 +78,58 @@ export default class ProfileStore {
       runInAction(() => {
         this.updatingIndicator = false;
       });
+    }
+  };
+
+  follow = async (username: string) => {
+    this.updatingIndicator = true;
+    try {
+      await agent.Profile.follow(username);
+      runInAction(() => {
+        this.profile!.following = true;
+        this.profile!.followersCount++;
+        this.updatingIndicator = false;
+      });
+    } catch (err) {
+      runInAction(() => {
+        this.updatingIndicator = false;
+      });
+      toast.error("Problem following user");
+    }
+  };
+  unfollow = async (username: string) => {
+    this.updatingIndicator = true;
+    try {
+      await agent.Profile.unfollow(username);
+      runInAction(() => {
+        this.profile!.following = false;
+        this.profile!.followersCount--;
+        this.updatingIndicator = false;
+      });
+    } catch (err) {
+      runInAction(() => {
+        this.updatingIndicator = false;
+      });
+      toast.error("Problem unfollowing user");
+    }
+  };
+
+  loadFollowings = async (predicate: string) => {
+    this.updatingIndicator = true;
+    try {
+      const profiles = await agent.Profile.listFollowings(
+        this.profile!.username,
+        predicate
+      );
+      runInAction(() => {
+        this.followings = profiles;
+        this.updatingIndicator = false;
+      });
+    } catch (err) {
+      runInAction(() => {
+        this.updatingIndicator = false;
+      });
+      toast.error("Problem loading followings");
     }
   };
 }

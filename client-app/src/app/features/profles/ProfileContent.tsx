@@ -1,7 +1,9 @@
+import { observer } from "mobx-react-lite";
 import React from "react";
 
 import { Tab } from "semantic-ui-react";
 import ProfileAbout from "./ProfileAbout";
+import ProfileFollowings from "./ProfileFollowings";
 import ProfilePhotos from "./ProfilePhotos";
 
 const panes = [
@@ -27,15 +29,23 @@ const panes = [
   },
   {
     menuItem: "Followers",
-    render: () => <Tab.Pane>Followers Content</Tab.Pane>,
+    render: () => (
+      <Tab.Pane>
+        <ProfileFollowings followers />
+      </Tab.Pane>
+    ),
   },
   {
     menuItem: "Following",
-    render: () => <Tab.Pane>Following Content</Tab.Pane>,
+    render: () => (
+      <Tab.Pane>
+        <ProfileFollowings />
+      </Tab.Pane>
+    ),
   },
 ];
 
-const ProfileContent = () => {
+const ProfileContent: React.FC = () => {
   return (
     <Tab
       menu={{ fluid: true, vertical: true }}
@@ -45,4 +55,4 @@ const ProfileContent = () => {
   );
 };
 
-export default ProfileContent;
+export default observer(ProfileContent);
