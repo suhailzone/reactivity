@@ -1,0 +1,81 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CodeSnippets xmlns="http://schemas.microsoft.com/VisualStudio/2005/CodeSnippet">
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>Command Handler</Title>
+			<Author>Suhail</Author>
+			<Shortcut>chandler</Shortcut>
+			<Description>Command Handler Template.</Description>
+		</Header>
+		<Snippet>
+			<Code Language="CSharp">
+				<![CDATA[
+		public class Command : IRequest
+        {
+        }
+
+        public class CommandValidator: AbstractValidator<Command>
+        {
+            public CommandValidator()
+            {
+            }
+            
+        }
+
+        public class Handler : IRequestHandler<Command>
+        {
+            private readonly DataContext _context;
+            public Handler(DataContext context)
+            {
+                _context = context;
+            }
+
+            public async Task<Unit> Handle(Command request, CancellationToken cancellationToken)
+            {
+                var result =  await _context.SaveChangesAsync() > 0;
+
+                if(result) return Unit.Value;
+
+                throw new Exception("Problem Creating Actvity");
+            }
+        }
+				]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+	<CodeSnippet Format="1.0.0">
+		<Header>
+			<Title>Query Handler</Title>
+			<Author>Suhail</Author>
+			<Shortcut>qhandler</Shortcut>
+			<Description>Query Handler Template.</Description>
+		</Header>
+		<Snippet>
+			<Declarations>
+				<Literal>
+					<ID>Type</ID>
+					<ToolTip>Choose the Type</ToolTip>
+				</Literal>
+			</Declarations>
+			<Code Language="CSharp">
+				<![CDATA[
+		 public class Query : IRequest<$Type$> {}
+
+        public class Handler : IRequestHandler<Query, $Type$>
+        {
+
+            private readonly DataContext _context;
+            public Handler(DataContext context)
+            {
+                _context = context;
+            }
+            public async Task<$Type$> Handle(Query request, CancellationToken cancellationToken)
+            {
+               
+            }
+        }
+				]]>
+			</Code>
+		</Snippet>
+	</CodeSnippet>
+</CodeSnippets>
